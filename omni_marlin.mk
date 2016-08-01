@@ -26,6 +26,15 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
 # Inherit from our custom product configuration
 $(call inherit-product, vendor/omni/config/common.mk)
 
+# Enable update engine sideloading by including the static version of the
+# boot_control HAL and its dependencies.
+PRODUCT_STATIC_BOOT_CONTROL_HAL := \
+    bootctrl.msm8996 \
+    librecovery_updater_msm \
+    libsparse_static
+PRODUCT_PACKAGES += \
+    update_engine_sideload
+
 PRODUCT_PACKAGES += \
     charger_res_images \
     charger
