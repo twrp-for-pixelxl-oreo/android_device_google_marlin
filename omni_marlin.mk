@@ -26,6 +26,8 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
 # Inherit from our custom product configuration
 $(call inherit-product, vendor/omni/config/common.mk)
 
+$(call inherit-product, device/google/marlin/device-marlin.mk)
+
 PRODUCT_PACKAGES += \
     update_engine_sideload
 
