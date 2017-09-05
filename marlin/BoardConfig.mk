@@ -21,16 +21,9 @@ TARGET_2ND_ARCH := arm
 TARGET_2ND_ARCH_VARIANT := armv7-a-neon
 TARGET_2ND_CPU_ABI := armeabi-v7a
 TARGET_2ND_CPU_ABI2 := armeabi
-TARGET_2ND_CPU_VARIANT := kryo
-
-ENABLE_CPUSETS := true
+TARGET_2ND_CPU_VARIANT := krait
 
 TARGET_NO_BOOTLOADER := true
-TARGET_NO_KERNEL := false
-TARGET_NO_RECOVERY := true
-TARGET_RECOVERY_FSTAB := device/google/marlin/fstab.common
-BOARD_USES_RECOVERY_AS_BOOT := true
-BOARD_BUILD_SYSTEM_ROOT_IMAGE := true
 BOOTLOADER_GCC_VERSION := arm-eabi-4.8
 # use msm8996 LK configuration
 BOOTLOADER_PLATFORM := msm8996
@@ -94,102 +87,44 @@ ifneq ($(TARGET_USES_AOSP),true)
 TARGET_USES_QCOM_BSP := true
 endif
 
-BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.console=ttyHSL0 androidboot.hardware=marlin user_debug=31 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 cma=32M@0-0xffffffff
+BOARD_KERNEL_CMDLINE := console=ttyHSL0,115200,n8 androidboot.console=ttyHSL0 androidboot.hardware=marlin user_debug=31 ehci-hcd.park=3 lpm_levels.sleep_disabled=1 cma=32M@0-0xffffffff buildvariant=eng
 
 BOARD_ROOT_EXTRA_FOLDERS := bt_firmware firmware firmware/radio persist
 BOARD_ROOT_EXTRA_SYMLINKS := /vendor/lib/dsp:/dsp
 
-BOARD_SEPOLICY_DIRS += device/google/marlin/sepolicy
-ifneq ($(filter marlin marlinf, $(TARGET_PRODUCT)),)
-BOARD_SEPOLICY_DIRS += device/google/marlin/sepolicy/verizon
-endif
 BOARD_SECCOMP_POLICY += device/google/marlin/seccomp
 
 BOARD_EGL_CFG := device/google/marlin/egl.cfg
 
 BOARD_KERNEL_BASE        := 0x80000000
 BOARD_KERNEL_PAGESIZE    := 4096
-BOARD_KERNEL_TAGS_OFFSET := 0x02000000
-BOARD_RAMDISK_OFFSET     := 0x02200000
+BOARD_MKBOOTIMG_ARGS := --kernel_offset 0x00008000 --ramdisk_offset 0x01000000 --tags_offset 0x00000100
 
-TARGET_KERNEL_ARCH := arm64
-TARGET_KERNEL_HEADER_ARCH := arm64
-TARGET_KERNEL_CROSS_COMPILE_PREFIX := aarch64-linux-android-
-TARGET_USES_UNCOMPRESSED_KERNEL := false
+# prebuilt kernel
+TARGET_PREBUILT_KERNEL := device/google/marlin/kernel
+# else uncomment below to build from sauce
+# TARGET_KERNEL_SOURCE := kernel/google/marlin
+# TARGET_KERNEL_CONFIG := marlin_defconfig
 
-MAX_EGL_CACHE_KEY_SIZE := 12*1024
-MAX_EGL_CACHE_SIZE := 2048*1024
+BOARD_BOOTIMAGE_PARTITION_SIZE := 41943040
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 41943040
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1073741824
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 2147483648
+BOARD_FLASH_BLOCK_SIZE := 131072 # (BOARD_KERNEL_PAGESIZE * 64)
+BOARD_VOLD_EMMC_SHARES_DEV_MAJOR := true
 
-TARGET_NO_RPC := true
+TARGET_USERIMAGES_USE_EXT4 := true
+BOARD_HAS_NO_SELECT_BUTTON := true
+TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 
-TARGET_PLATFORM_DEVICE_BASE := /devices/soc/
-
-#Let charger mode enter suspend
-BOARD_CHARGER_ENABLE_SUSPEND := true
-
-#Enable Peripheral Manager
-TARGET_PER_MGR_ENABLED := true
-
-#Enable HW based full disk encryption
-# TODO: disable due to compile error due to mismatch with system/vold
-# TARGET_HW_DISK_ENCRYPTION := true
-
-#Enable SW based full disk encryption
-TARGET_SWV8_DISK_ENCRYPTION := false
-
-#Enable PD locater/notifier
-TARGET_PD_SERVICE_ENABLED := true
-
-BOARD_QTI_CAMERA_32BIT_ONLY := true
-TARGET_BOOTIMG_SIGNED := true
-
-# Enable dex pre-opt to speed up initial boot
-ifeq ($(HOST_OS),linux)
-  ifeq ($(WITH_DEXPREOPT),)
-    WITH_DEXPREOPT := true
-    WITH_DEXPREOPT_PIC := true
-    ifneq ($(TARGET_BUILD_VARIANT),user)
-      # Retain classes.dex in APK's for non-user builds
-      DEX_PREOPT_DEFAULT := nostripping
-    endif
-  endif
-endif
-
-# HTC_SENSOR_HUB
-LIBHTC_SENSORHUB_PROJECT := g_project
-
-#Enable/Disable Camera daemon
-CAMERA_DAEMON_NOT_PRESENT := true
-
-#TARGET_LDPRELOAD := libNimsWrap.so
-
-# TARGET_COMPILE_WITH_MSM_KERNEL := true
-
-TARGET_KERNEL_APPEND_DTB := true
-# Added to indicate that protobuf-c is supported in this build
-PROTOBUF_SUPPORTED := false
-
-#Add NON-HLOS files for ota upgrade
-ADD_RADIO_FILES := true
-TARGET_RECOVERY_UI_LIB := librecovery_ui_nanohub
-
-#Add support for firmare upgrade on 8996
-HAVE_SYNAPTICS_DSX_FW_UPGRADE := true
-
-# Enable MDTP (Mobile Device Theft Protection)
-TARGET_USE_MDTP := true
-
-# Use prebuilt APN lib from Verizon Wireless
-TARGET_USE_VERIZON_APN_LIB_PREBUILT := true
-
-TARGET_BOARD_KERNEL_HEADERS := device/google/marlin/kernel-headers
-
-# Install odex files into the other system image
-BOARD_USES_SYSTEM_OTHER_ODEX := true
-
--include vendor/google_devices/marlin/BoardConfigVendor.mk
-# Build a separate vendor.img
-TARGET_COPY_OUT_VENDOR := vendor
-
-#NFC
-NXP_CHIP_TYPE := PN551
+TW_THEME := portrait_hdpi
+BOARD_SUPPRESS_SECURE_ERASE := true
+TARGET_RECOVERY_QCOM_RTC_FIX := true
+TW_INPUT_BLACKLIST := "hbtp_vm"
+TW_DEFAULT_BRIGHTNESS := "80"
+TW_INCLUDE_CRYPTO := true
+AB_OTA_UPDATER := true
+TARGET_RECOVERY_UPDATER_LIBS := librecovery_updater_msm
+TW_INCLUDE_FBE := true
+TWRP_INCLUDE_LOGCAT := true
+TARGET_USES_LOGD := true
