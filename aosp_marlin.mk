@@ -1,5 +1,5 @@
 #
-# Copyright 2012 The Android Open Source Project
+# Copyright 2015 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,31 +17,25 @@
 # Sample: This is where we'd set a backup provider if we had one
 # $(call inherit-product, device/sample/products/backup_overlay.mk)
 
-# Get the prebuilt list of APNs
-$(call inherit-product, vendor/omni/config/gsm.mk)
+# Provide meaningful APN configuration
+PRODUCT_COPY_FILES := device/google/marlin/apns-full-conf.xml:system/etc/apns-conf.xml
 
 # Inherit from the common Open Source product configuration
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_base_telephony.mk)
 
-# Inherit from our custom product configuration
-$(call inherit-product, vendor/omni/config/common.mk)
+PRODUCT_NAME := aosp_marlin
+PRODUCT_DEVICE := marlin
+PRODUCT_BRAND := Android
+PRODUCT_MODEL := AOSP on msm8996
+PRODUCT_MANUFACTURER := google
+PRODUCT_RESTRICT_VENDOR_FILES := true
+
+PRODUCT_COPY_FILES += device/google/marlin/fstab.aosp_common:root/fstab.marlin
 
 $(call inherit-product, device/google/marlin/device-marlin.mk)
+$(call inherit-product-if-exists, vendor/google_devices/marlin/device-vendor-marlin.mk)
 
 PRODUCT_PACKAGES += \
-    charger_res_images \
-    charger
+    Launcher3
 
-PRODUCT_COPY_FILES += \
-    device/google/marlin/kernel:kernel
-
-PRODUCT_NAME := omni_marlin
-PRODUCT_DEVICE := marlin
-PRODUCT_BRAND := Google
-PRODUCT_MODEL := Pixel XL
-PRODUCT_MANUFACTURER := Google
-
-# Kernel inline build
-#TARGET_KERNEL_CONFIG := marlin_defconfig
-#TARGET_VARIANT_CONFIG := marlin_defconfig
-#TARGET_SELINUX_CONFIG := marlin_defconfig
